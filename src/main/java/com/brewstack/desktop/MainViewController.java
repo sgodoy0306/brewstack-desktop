@@ -8,7 +8,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public class MainViewController {
@@ -21,19 +20,23 @@ public class MainViewController {
 
     @FXML
     public void initialize() {
-        setBaristaStatus("Barista", 1);
-        loadMenu();
+        try {
+            setBaristaStatus("Barista", 1);
+            loadMenu();
+        } catch (Exception e) {
+            System.err.println("Failed to initialize MainViewController: " + e.getMessage());
+        }
     }
 
     private void loadMenu() {
-        Thread.ofVirtual().start(() -> {
+        new Thread(() -> {
             try {
                 List<Recipe> recipes = apiClient.getMenu();
                 Platform.runLater(() -> populateMenu(recipes));
             } catch (Exception e) {
                 Platform.runLater(() -> showMenuError(e.getMessage()));
             }
-        });
+        }).start();
     }
 
     private void populateMenu(List<Recipe> recipes) {
@@ -70,13 +73,13 @@ public class MainViewController {
     }
 
     private void handleSale(Recipe recipe) {
-        Thread.ofVirtual().start(() -> {
+        new Thread(() -> {
             try {
                 apiClient.processSale(recipe.getId());
             } catch (Exception e) {
                 System.err.println("Sale failed for " + recipe.getName() + ": " + e.getMessage());
             }
-        });
+        }).start();
     }
 
     private void showMenuError(String message) {
