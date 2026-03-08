@@ -2,13 +2,18 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.brewstack.desktop.MainViewController">
 
+    <!-- Top: App header -->
     <top>
         <VBox style="-fx-background-color: #2c3e50; -fx-padding: 16;">
             <Label text="BrewStack POS"
@@ -16,14 +21,45 @@
         </VBox>
     </top>
 
+    <!-- Center: Menu buttons (left) + Status bar (right) -->
     <center>
-        <VBox alignment="CENTER" spacing="12">
-            <padding>
-                <Insets top="40" right="40" bottom="40" left="40" />
-            </padding>
-            <Label text="Welcome to BrewStack POS"
-                   style="-fx-font-size: 18px; -fx-text-fill: #555;" />
-        </VBox>
+        <HBox spacing="0">
+
+            <!-- Left: Recipe menu -->
+            <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS"
+                        style="-fx-background-color: #f4f4f4; -fx-border-color: transparent;">
+                <content>
+                    <VBox spacing="16">
+                        <padding>
+                            <Insets top="20" right="20" bottom="20" left="20" />
+                        </padding>
+                        <Label text="Menu"
+                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                        <FlowPane fx:id="menuPane" hgap="12" vgap="12" prefWrapLength="560" />
+                    </VBox>
+                </content>
+            </ScrollPane>
+
+            <Separator orientation="VERTICAL" />
+
+            <!-- Right: Barista status bar -->
+            <VBox prefWidth="220" spacing="12"
+                  style="-fx-background-color: #2c3e50;">
+                <padding>
+                    <Insets top="24" right="20" bottom="24" left="20" />
+                </padding>
+                <Label text="Barista"
+                       style="-fx-text-fill: #95a5a6; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                <Label fx:id="baristaNameLabel" text="—"
+                       style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
+                <Separator style="-fx-background-color: #3d5166;" />
+                <Label text="Level"
+                       style="-fx-text-fill: #95a5a6; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                <Label fx:id="baristaLevelLabel" text="—"
+                       style="-fx-text-fill: #f39c12; -fx-font-size: 28px; -fx-font-weight: bold;" />
+            </VBox>
+
+        </HBox>
     </center>
 
 </BorderPane>
