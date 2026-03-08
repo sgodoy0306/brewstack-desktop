@@ -1,5 +1,6 @@
 package com.brewstack.desktop.api;
 
+import com.brewstack.desktop.api.model.Barista;
 import com.brewstack.desktop.api.model.Recipe;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +37,38 @@ public class BrewApiClient {
         }
 
         return objectMapper.readValue(response.body(), new TypeReference<List<Recipe>>() {});
+    }
+
+    public List<Barista> getBaristas() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/baristas"))
+                .GET()
+                .header("Accept", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Failed to fetch baristas. HTTP status: " + response.statusCode());
+        }
+
+        return objectMapper.readValue(response.body(), new TypeReference<List<Barista>>() {});
+    }
+
+    public Barista getBarista(Long id) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/baristas/" + id))
+                .GET()
+                .header("Accept", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Failed to fetch barista " + id + ". HTTP status: " + response.statusCode());
+        }
+
+        return objectMapper.readValue(response.body(), Barista.class);
     }
 
     public void processSale(Long recipeId) throws Exception {
