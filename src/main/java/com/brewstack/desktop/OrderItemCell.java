@@ -25,12 +25,12 @@ public class OrderItemCell extends ListCell<OrderItem> {
 
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        nameLabel.setStyle("-fx-font-size: 13px;");
+        nameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #2e1a6a;");
 
         removeBtn.setStyle(
-            "-fx-background-color: #e74c3c; -fx-text-fill: white; " +
-            "-fx-background-radius: 4; -fx-cursor: hand; " +
-            "-fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 1 7 1 7;"
+            "-fx-background-color: #f0b5b5; -fx-text-fill: #6a1a1a; " +
+            "-fx-background-radius: 12; -fx-cursor: hand; " +
+            "-fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 1 8 1 8;"
         );
 
         removeBtn.setOnAction(e -> {

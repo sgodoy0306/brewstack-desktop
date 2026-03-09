@@ -64,26 +64,28 @@ public class BaristaSelectionController {
 
     private VBox buildCard(Barista barista) {
         String baseStyle =
-            "-fx-background-color: #2c3e50; -fx-background-radius: 12; " +
-            "-fx-cursor: hand; -fx-border-color: #3d5166; -fx-border-radius: 12; -fx-border-width: 2;";
+            "-fx-background-color: #ffffff; -fx-background-radius: 16; " +
+            "-fx-cursor: hand; -fx-border-color: #ece6fa; -fx-border-radius: 16; -fx-border-width: 2; " +
+            "-fx-effect: dropshadow(gaussian, rgba(100,80,160,0.10), 12, 0, 0, 3);";
         String hoverStyle =
-            "-fx-background-color: #2980b9; -fx-background-radius: 12; " +
-            "-fx-cursor: hand; -fx-border-color: #5dade2; -fx-border-radius: 12; -fx-border-width: 2;";
+            "-fx-background-color: #f0eaff; -fx-background-radius: 16; " +
+            "-fx-cursor: hand; -fx-border-color: #d4bef5; -fx-border-radius: 16; -fx-border-width: 2; " +
+            "-fx-effect: dropshadow(gaussian, rgba(100,80,160,0.18), 16, 0, 0, 4);";
 
-        VBox card = new VBox(10);
+        VBox card = new VBox(8);
         card.setAlignment(Pos.CENTER);
-        card.setPrefWidth(170);
+        card.setPrefWidth(175);
         card.setPrefHeight(130);
         card.setStyle(baseStyle);
 
         Label nameLabel = new Label(barista.getName());
-        nameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;");
+        nameLabel.setStyle("-fx-text-fill: #1e1830; -fx-font-size: 18px; -fx-font-weight: bold;");
 
         Label levelLabel = new Label("Level " + barista.getLevel());
-        levelLabel.setStyle("-fx-text-fill: #f39c12; -fx-font-size: 13px;");
+        levelLabel.setStyle("-fx-text-fill: #7a5cb0; -fx-font-size: 13px; -fx-font-weight: bold;");
 
         Label xpLabel = new Label(barista.getTotalXp() + " XP");
-        xpLabel.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 11px;");
+        xpLabel.setStyle("-fx-text-fill: #9b8fc0; -fx-font-size: 11px;");
 
         card.getChildren().addAll(nameLabel, levelLabel, xpLabel);
         card.setOnMouseClicked(e -> selectBarista(barista));

@@ -42,16 +42,16 @@ public class StockCell extends ListCell<StockItem> {
 
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
-        stockLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #7f8c8d;");
+        nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1e1830;");
+        stockLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #8f7eb0;");
 
         amountField.setPromptText("Amount");
         amountField.setPrefWidth(80);
-        amountField.setStyle("-fx-font-size: 13px;");
+        amountField.setStyle("-fx-font-size: 12px; -fx-background-radius: 8; -fx-border-radius: 8;");
 
         restockBtn.setStyle(
-            "-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 13px; " +
-            "-fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 5 12 5 12;"
+            "-fx-background-color: #b5e8d5; -fx-text-fill: #1a4035; -fx-font-size: 12px; " +
+            "-fx-font-weight: bold; -fx-background-radius: 16; -fx-cursor: hand; -fx-padding: 5 14 5 14;"
         );
 
         feedbackLabel.setStyle("-fx-font-size: 11px;");
@@ -63,8 +63,8 @@ public class StockCell extends ListCell<StockItem> {
         infoBox.getChildren().addAll(nameLabel, stockLabel);
 
         container.setAlignment(Pos.CENTER_LEFT);
-        container.setStyle("-fx-background-color: white; -fx-padding: 10 14 10 14; " +
-                "-fx-border-color: #ecf0f1; -fx-border-width: 0 0 1 0;");
+        container.setStyle("-fx-background-color: #ffffff; -fx-padding: 10 14 10 14; " +
+                "-fx-border-color: #ece6fa; -fx-border-width: 0 0 1 0;");
         container.getChildren().addAll(infoBox, spacer, feedbackLabel, amountField, restockBtn);
     }
 
@@ -128,7 +128,7 @@ public class StockCell extends ListCell<StockItem> {
     private void showFeedback(String message, boolean success) {
         feedbackLabel.setText(message);
         feedbackLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: " +
-                (success ? "#27ae60" : "#e74c3c") + ";");
+                (success ? "#3a9e6a" : "#d47070") + ";");
         feedbackLabel.setVisible(true);
     }
 
@@ -137,8 +137,8 @@ public class StockCell extends ListCell<StockItem> {
                 item.getCurrentStock(), item.getUnit() != null ? item.getUnit() : "",
                 item.getMinimumThreshold());
         stockLabel.setText(stockText);
-        stockLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: " +
-                (item.isLow() ? "#e74c3c" : "#27ae60") + ";");
+        stockLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: " +
+                (item.isLow() ? "#d47070" : "#3a9e6a") + ";");
     }
 
     @Override

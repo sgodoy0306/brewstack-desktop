@@ -10,7 +10,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.util.Duration;
 
@@ -30,7 +31,7 @@ public class MainViewController {
     // Kept in sync after each load and each completed order
     private Map<String, Double> stockMap = new HashMap<>();
     private List<Recipe> loadedRecipes = new ArrayList<>();
-    private final Map<Long, Button> recipeButtons = new HashMap<>();
+    private final Map<Long, RecipeCard> recipeCards = new HashMap<>();
 
     @FXML
     public void initialize() {
@@ -177,8 +178,7 @@ public class MainViewController {
     }
 
     /**
-     * Re-fetches live stock after an order completes and refreshes all recipe buttons.
-     * Guards against concurrent orders that may have depleted stock in the background.
+     * Re-fetches live stock after an order completes and refreshes all recipe cards.
      */
     private void syncStockAfterOrder() {
         Task<Map<String, Double>> task = new Task<>() {
@@ -199,7 +199,6 @@ public class MainViewController {
             refreshRecipeButtons();
         });
 
-        // Silent failure — the order already succeeded; buttons will refresh on next interaction
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();
