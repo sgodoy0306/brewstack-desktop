@@ -15,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MainViewController {
 
@@ -39,6 +41,11 @@ public class MainViewController {
     @FXML private Button completeOrderBtn;
     @FXML private Label orderStatusLabel;
     @FXML private Label levelUpLabel;
+    @FXML private Label toastLabel;
+
+    /** Carrier for a completed order result — success or structured error. */
+    private record OrderResult(boolean success, long baristaXp, int baristaLevel,
+                                String errorType, String errorMessage) {}
 
     private final ObservableList<OrderItem> currentOrder = FXCollections.observableArrayList();
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -49,7 +56,7 @@ public class MainViewController {
         orderListView.setItems(currentOrder);
         updateTotal();
         loadBaristaHeader();
-        fetchRecipes();
+        fetchRecipesAndStock();
     }
 
     private void loadBaristaHeader() {
@@ -69,6 +76,20 @@ public class MainViewController {
         } catch (Exception e) {
             showError("Navigation Error", e.getMessage() != null ? e.getMessage() : e.getClass().getName());
         }
+    }
+
+    private void showToast(String message) {
+        toastLabel.setText(message);
+        toastLabel.setOpacity(1.0);
+        toastLabel.setVisible(true);
+
+        PauseTransition hold = new PauseTransition(Duration.seconds(2.5));
+        FadeTransition fade = new FadeTransition(Duration.seconds(0.7), toastLabel);
+        fade.setFromValue(1.0);
+        fade.setToValue(0.0);
+        fade.setOnFinished(ev -> toastLabel.setVisible(false));
+
+        new SequentialTransition(hold, fade).play();
     }
 
     private void showLevelUp(int newLevel) {
@@ -106,20 +127,33 @@ public class MainViewController {
         }
     }
 
-    private void fetchRecipes() {
-        Task<List<Recipe>> task = new Task<>() {
+    private record RecipeData(List<Recipe> recipes, Map<String, Double> stockMap) {}
+
+    private void fetchRecipesAndStock() {
+        Task<RecipeData> task = new Task<>() {
             @Override
-            protected List<Recipe> call() throws Exception {
-                HttpRequest request = HttpRequest.newBuilder()
+            protected RecipeData call() throws Exception {
+                // Fetch stock levels
+                HttpRequest stockReq = HttpRequest.newBuilder()
+                        .uri(URI.create("http://localhost:8181/api/stock"))
+                        .GET().build();
+                HttpResponse<String> stockResp = httpClient.send(stockReq, HttpResponse.BodyHandlers.ofString());
+                List<StockItem> stockItems = mapper.readValue(stockResp.body(), new TypeReference<>() {});
+                Map<String, Double> stockMap = stockItems.stream()
+                        .collect(Collectors.toMap(StockItem::getName, StockItem::getCurrentStock));
+
+                // Fetch recipes (includes ingredients list)
+                HttpRequest recipeReq = HttpRequest.newBuilder()
                         .uri(URI.create("http://localhost:8181/api/recipes"))
-                        .GET()
-                        .build();
-                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                return mapper.readValue(response.body(), new TypeReference<List<Recipe>>() {});
+                        .GET().build();
+                HttpResponse<String> recipeResp = httpClient.send(recipeReq, HttpResponse.BodyHandlers.ofString());
+                List<Recipe> recipes = mapper.readValue(recipeResp.body(), new TypeReference<>() {});
+
+                return new RecipeData(recipes, stockMap);
             }
         };
 
-        task.setOnSucceeded(e -> populateButtons(task.getValue()));
+        task.setOnSucceeded(e -> populateButtons(task.getValue().recipes(), task.getValue().stockMap()));
         task.setOnFailed(e -> {
             Label error = new Label("Could not load recipes: " + task.getException().getMessage());
             error.setStyle("-fx-text-fill: red; -fx-font-size: 13px;");
@@ -131,16 +165,28 @@ public class MainViewController {
         thread.start();
     }
 
-    private void populateButtons(List<Recipe> recipes) {
+    private void populateButtons(List<Recipe> recipes, Map<String, Double> stockMap) {
         for (Recipe recipe : recipes) {
+            boolean inStock = recipe.isInStock(stockMap);
             Button btn = new Button(recipe.getName() + "\n$" + String.format("%.2f", recipe.getPrice()));
             btn.setPrefWidth(130);
             btn.setPrefHeight(80);
-            btn.setStyle(
-                "-fx-font-size: 13px; -fx-background-color: #3498db; " +
-                "-fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;"
-            );
-            btn.setOnAction(ev -> addToOrder(recipe));
+
+            if (inStock) {
+                btn.setStyle(
+                    "-fx-font-size: 13px; -fx-background-color: #3498db; " +
+                    "-fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;"
+                );
+                btn.setOnAction(ev -> addToOrder(recipe));
+            } else {
+                btn.setDisable(true);
+                btn.setStyle(
+                    "-fx-font-size: 13px; -fx-background-color: #bdc3c7; " +
+                    "-fx-text-fill: #7f8c8d; -fx-background-radius: 8;"
+                );
+                btn.setTooltip(new Tooltip("Out of stock"));
+            }
+
             recipePane.getChildren().add(btn);
         }
     }
@@ -190,9 +236,9 @@ public class MainViewController {
         completeOrderBtn.setDisable(true);
         orderStatusLabel.setText("");
 
-        Task<long[]> task = new Task<>() {
+        Task<OrderResult> task = new Task<>() {
             @Override
-            protected long[] call() throws Exception {
+            protected OrderResult call() throws Exception {
                 String body = mapper.writeValueAsString(payload);
                 HttpRequest postRequest = HttpRequest.newBuilder()
                         .uri(URI.create("http://localhost:8181/api/brew/order"))
@@ -200,28 +246,46 @@ public class MainViewController {
                         .POST(HttpRequest.BodyPublishers.ofString(body))
                         .build();
                 HttpResponse<String> response = httpClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                    throw new RuntimeException("Order failed: HTTP " + response.statusCode() + " — " + response.body());
-                }
-                // Extract baristaXp and baristaLevel directly from the response
+
                 var node = mapper.readTree(response.body());
-                long xp = node.get("baristaXp").asLong();
-                int level = node.get("baristaLevel").asInt();
-                return new long[]{xp, level};
+
+                if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                    return new OrderResult(true,
+                            node.get("baristaXp").asLong(),
+                            node.get("baristaLevel").asInt(),
+                            null, null);
+                }
+
+                // Parse structured error from backend ErrorResponse
+                return new OrderResult(false, 0, 0,
+                        node.path("error").asText("Error"),
+                        node.path("message").asText("Something went wrong."));
             }
         };
 
         task.setOnSucceeded(e -> {
-            long[] result = task.getValue();
+            OrderResult result = task.getValue();
+            completeOrderBtn.setDisable(false);
+
+            if (!result.success()) {
+                if ("Insufficient Stock".equals(result.errorType())) {
+                    String ingredient = result.errorMessage().replace("Not enough stock for ", "");
+                    showToast("Out of stock: " + ingredient + ". Please choose another option.");
+                } else {
+                    orderStatusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #c0392b;");
+                    orderStatusLabel.setText("Error: " + result.errorMessage());
+                }
+                return;
+            }
+
             int oldLevel = barista.getLevel();
-            int newLevel = (int) result[1];
-            barista.setTotalXp((int) result[0]);
+            int newLevel = result.baristaLevel();
+            barista.setTotalXp((int) result.baristaXp());
             barista.setLevel(newLevel);
             AppState.setCurrentBarista(barista);
             loadBaristaHeader();
             currentOrder.clear();
             updateTotal();
-            completeOrderBtn.setDisable(false);
             orderStatusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #27ae60;");
             orderStatusLabel.setText("Order completed!");
             if (newLevel > oldLevel) {
@@ -232,7 +296,7 @@ public class MainViewController {
         task.setOnFailed(e -> {
             completeOrderBtn.setDisable(false);
             orderStatusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #c0392b;");
-            orderStatusLabel.setText("Error: " + task.getException().getMessage());
+            orderStatusLabel.setText("Connection error. Check the server.");
         });
 
         Thread thread = new Thread(task);

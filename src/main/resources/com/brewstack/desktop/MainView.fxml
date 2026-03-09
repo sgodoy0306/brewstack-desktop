@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
@@ -54,12 +55,23 @@
     </top>
 
     <center>
-        <FlowPane fx:id="recipePane" hgap="12" vgap="12"
-                  style="-fx-background-color: #f5f5f5;">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20" />
-            </padding>
-        </FlowPane>
+        <StackPane>
+            <FlowPane fx:id="recipePane" hgap="12" vgap="12"
+                      style="-fx-background-color: #f5f5f5;">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20" />
+                </padding>
+            </FlowPane>
+
+            <!-- Toast notification — floats above the recipe grid -->
+            <Label fx:id="toastLabel" text="" visible="false" wrapText="true" maxWidth="500"
+                   StackPane.alignment="BOTTOM_CENTER"
+                   style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12 20 12 20; -fx-font-size: 13px; -fx-font-weight: bold;">
+                <StackPane.margin>
+                    <Insets bottom="20" />
+                </StackPane.margin>
+            </Label>
+        </StackPane>
     </center>
 
     <right>
