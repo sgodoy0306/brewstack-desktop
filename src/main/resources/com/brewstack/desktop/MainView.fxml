@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
@@ -17,61 +17,73 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.brewstack.desktop.MainViewController">
 
+    <!-- Top: App header with barista selector -->
     <top>
         <HBox alignment="CENTER_LEFT" spacing="16"
               style="-fx-background-color: #2c3e50; -fx-padding: 12 16 12 16;">
-
-            <!-- Title -->
             <Label text="BrewStack POS"
-                   style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
-
+                   style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
             <Region HBox.hgrow="ALWAYS" />
-
-            <!-- XP Section -->
-            <VBox alignment="CENTER" spacing="4">
-                <Label fx:id="baristaNameLabel" text=""
-                       style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;" />
-                <HBox alignment="CENTER_LEFT" spacing="8">
-                    <ProgressBar fx:id="xpBar" prefWidth="220" prefHeight="10" progress="0.0"
-                                 style="-fx-accent: #f39c12;" />
-                    <Label fx:id="xpLabel" text=""
-                           style="-fx-text-fill: #bdc3c7; -fx-font-size: 11px;" />
-                </HBox>
-                <Label fx:id="levelUpLabel" text="" visible="false"
-                       style="-fx-text-fill: #f1c40f; -fx-font-size: 12px; -fx-font-weight: bold;" />
-            </VBox>
-
-            <Region HBox.hgrow="ALWAYS" />
-
-            <!-- History -->
-            <Button text="Daily History" onAction="#onDailyHistory"
-                    style="-fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-size: 13px; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 8 14 8 14;" />
-
-            <!-- Barista Switcher -->
-            <Button text="Switch Barista" onAction="#onSwitchBarista"
-                    style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-size: 13px; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 8 14 8 14;" />
-
+            <Label text="Barista:"
+                   style="-fx-text-fill: #95a5a6; -fx-font-size: 13px;" />
+            <ComboBox fx:id="baristaComboBox" promptText="Select barista..."
+                      prefWidth="200"
+                      style="-fx-background-color: #3d5166; -fx-text-fill: white;" />
         </HBox>
     </top>
 
+    <!-- Center: Menu buttons (left) + Status bar (right) -->
     <center>
-        <StackPane>
-            <FlowPane fx:id="recipePane" hgap="12" vgap="12"
-                      style="-fx-background-color: #f5f5f5;">
-                <padding>
-                    <Insets top="20" right="20" bottom="20" left="20" />
-                </padding>
-            </FlowPane>
+        <HBox spacing="0">
 
-            <!-- Toast notification — floats above the recipe grid -->
-            <Label fx:id="toastLabel" text="" visible="false" wrapText="true" maxWidth="500"
-                   StackPane.alignment="BOTTOM_CENTER"
-                   style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12 20 12 20; -fx-font-size: 13px; -fx-font-weight: bold;">
-                <StackPane.margin>
-                    <Insets bottom="20" />
-                </StackPane.margin>
-            </Label>
-        </StackPane>
+            <!-- Left: Recipe menu -->
+            <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS"
+                        style="-fx-background-color: #f4f4f4; -fx-border-color: transparent;">
+                <content>
+                    <VBox spacing="16">
+                        <padding>
+                            <Insets top="20" right="20" bottom="20" left="20" />
+                        </padding>
+                        <Label text="Menu"
+                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                        <FlowPane fx:id="menuPane" hgap="12" vgap="12" prefWrapLength="560" />
+                    </VBox>
+                </content>
+            </ScrollPane>
+
+            <Separator orientation="VERTICAL" />
+
+            <!-- Right: Barista status bar -->
+            <VBox prefWidth="220" spacing="12"
+                  style="-fx-background-color: #2c3e50;">
+                <padding>
+                    <Insets top="24" right="20" bottom="24" left="20" />
+                </padding>
+
+                <Label text="BARISTA"
+                       style="-fx-text-fill: #95a5a6; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                <Label fx:id="baristaNameLabel" text="—"
+                       style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
+
+                <Separator style="-fx-background-color: #3d5166;" />
+
+                <Label text="LEVEL"
+                       style="-fx-text-fill: #95a5a6; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                <Label fx:id="baristaLevelLabel" text="—"
+                       style="-fx-text-fill: #f39c12; -fx-font-size: 28px; -fx-font-weight: bold;" />
+
+                <Separator style="-fx-background-color: #3d5166;" />
+
+                <Label text="XP PROGRESS"
+                       style="-fx-text-fill: #95a5a6; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                <ProgressBar fx:id="xpProgressBar" progress="0"
+                             prefWidth="180"
+                             style="-fx-accent: #27ae60;" />
+                <Label fx:id="xpLabel" text="0 / 0 XP"
+                       style="-fx-text-fill: #bdc3c7; -fx-font-size: 11px;" />
+            </VBox>
+
+        </HBox>
     </center>
 
     <right>
