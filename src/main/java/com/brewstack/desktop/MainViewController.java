@@ -69,6 +69,17 @@ public class MainViewController {
     }
 
     @FXML
+    private void onStock() {
+        try {
+            FXMLLoader loader = new FXMLLoader(App.class.getResource("StockView.fxml"));
+            Stage stage = (Stage) recipePane.getScene().getWindow();
+            stage.setScene(new Scene(loader.load(), 1100, 720));
+        } catch (Exception e) {
+            showError("Navigation Error", e.getMessage() != null ? e.getMessage() : e.getClass().getName());
+        }
+    }
+
+    @FXML
     private void onDailyHistory() {
         try {
             FXMLLoader loader = new FXMLLoader(App.class.getResource("DailyHistoryView.fxml"));

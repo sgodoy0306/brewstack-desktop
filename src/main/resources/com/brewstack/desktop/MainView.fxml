@@ -43,6 +43,10 @@
 
             <Region HBox.hgrow="ALWAYS" />
 
+            <!-- Stock Admin -->
+            <Button text="Stock" onAction="#onStock"
+                    style="-fx-background-color: #16a085; -fx-text-fill: white; -fx-font-size: 13px; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 8 14 8 14;" />
+
             <!-- History -->
             <Button text="Daily History" onAction="#onDailyHistory"
                     style="-fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-size: 13px; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 8 14 8 14;" />
