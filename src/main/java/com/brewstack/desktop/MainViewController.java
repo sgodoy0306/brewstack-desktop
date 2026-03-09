@@ -54,6 +54,7 @@ public class MainViewController {
     @FXML
     public void initialize() {
         orderListView.setItems(currentOrder);
+        orderListView.setCellFactory(lv -> new OrderItemCell(currentOrder, this::updateTotal));
         updateTotal();
         loadBaristaHeader();
         fetchRecipesAndStock();
