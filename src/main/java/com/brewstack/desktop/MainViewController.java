@@ -27,6 +27,11 @@ public class MainViewController {
 
     private final BrewApiClient apiClient = new BrewApiClient();
 
+    // Kept in sync after each load and each completed order
+    private Map<String, Double> stockMap = new HashMap<>();
+    private List<Recipe> loadedRecipes = new ArrayList<>();
+    private final Map<Long, Button> recipeButtons = new HashMap<>();
+
     @FXML
     public void initialize() {
         try {
@@ -170,4 +175,34 @@ public class MainViewController {
         error.setStyle("-fx-text-fill: #e74c3c; -fx-font-size: 13px;");
         menuPane.getChildren().add(error);
     }
+
+    /**
+     * Re-fetches live stock after an order completes and refreshes all recipe buttons.
+     * Guards against concurrent orders that may have depleted stock in the background.
+     */
+    private void syncStockAfterOrder() {
+        Task<Map<String, Double>> task = new Task<>() {
+            @Override
+            protected Map<String, Double> call() throws Exception {
+                HttpRequest req = HttpRequest.newBuilder()
+                        .uri(URI.create("http://localhost:8181/api/stock"))
+                        .GET().build();
+                HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+                List<StockItem> items = mapper.readValue(resp.body(), new TypeReference<>() {});
+                return items.stream()
+                        .collect(Collectors.toMap(StockItem::getName, StockItem::getCurrentStock));
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            stockMap = task.getValue();
+            refreshRecipeButtons();
+        });
+
+        // Silent failure — the order already succeeded; buttons will refresh on next interaction
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
 }
