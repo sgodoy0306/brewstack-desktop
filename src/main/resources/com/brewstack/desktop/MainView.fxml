@@ -85,4 +85,25 @@
         </HBox>
     </center>
 
+    <right>
+        <VBox spacing="12" prefWidth="260"
+              style="-fx-background-color: #ecf0f1; -fx-border-color: #bdc3c7; -fx-border-width: 0 0 0 1;">
+            <padding>
+                <Insets top="16" right="16" bottom="16" left="16" />
+            </padding>
+            <Label text="Current Order"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+            <Separator />
+            <ListView fx:id="orderListView" prefHeight="400" />
+            <Separator />
+            <Label fx:id="totalPriceLabel" text="Total:  $0.00"
+                   style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #27ae60;" />
+            <Button fx:id="completeOrderBtn" text="Complete Order" onAction="#onCompleteOrder"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 10 16 10 16;" />
+            <Label fx:id="orderStatusLabel" text="" wrapText="true"
+                   style="-fx-font-size: 12px; -fx-text-fill: #c0392b;" />
+        </VBox>
+    </right>
+
 </BorderPane>

@@ -1,6 +1,8 @@
 module com.brewstack.desktop {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.graphics;
+    requires java.net.http;
     requires com.fasterxml.jackson.databind;
     requires java.net.http;
 

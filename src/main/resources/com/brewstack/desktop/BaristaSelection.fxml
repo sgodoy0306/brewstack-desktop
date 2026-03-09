@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.brewstack.desktop.BaristaSelectionController"
+            style="-fx-background-color: #1a252f;">
+
+    <top>
+        <VBox alignment="CENTER" style="-fx-padding: 48 0 28 0; -fx-background-color: #1a252f;">
+            <Label text="BrewStack"
+                   style="-fx-text-fill: white; -fx-font-size: 38px; -fx-font-weight: bold;" />
+            <Label text="Who's working today?"
+                   style="-fx-text-fill: #7f8c8d; -fx-font-size: 15px; -fx-padding: 10 0 0 0;" />
+        </VBox>
+    </top>
+
+    <center>
+        <FlowPane fx:id="baristaPane" hgap="24" vgap="24" alignment="CENTER"
+                  style="-fx-background-color: #1a252f;">
+            <padding>
+                <Insets top="16" right="40" bottom="40" left="40" />
+            </padding>
+        </FlowPane>
+    </center>
+
+</BorderPane>
