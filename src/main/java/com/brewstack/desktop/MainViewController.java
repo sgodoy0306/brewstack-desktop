@@ -25,6 +25,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,11 @@ public class MainViewController {
     private final ObservableList<OrderItem> currentOrder = FXCollections.observableArrayList();
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
+
+    // Kept in sync after each load and each completed order
+    private Map<String, Double> stockMap = new HashMap<>();
+    private List<Recipe> loadedRecipes = new ArrayList<>();
+    private final Map<Long, Button> recipeButtons = new HashMap<>();
 
     @FXML
     public void initialize() {
@@ -177,33 +183,78 @@ public class MainViewController {
         thread.start();
     }
 
-    private void populateButtons(List<Recipe> recipes, Map<String, Double> stockMap) {
+    private void populateButtons(List<Recipe> recipes, Map<String, Double> stock) {
+        this.stockMap = stock;
+        this.loadedRecipes = recipes;
+        recipeButtons.clear();
+
         for (Recipe recipe : recipes) {
-            boolean inStock = recipe.isInStock(stockMap);
             Button btn = new Button(recipe.getName() + "\n$" + String.format("%.2f", recipe.getPrice()));
             btn.setPrefWidth(130);
             btn.setPrefHeight(80);
+            btn.setOnAction(ev -> addToOrder(recipe));
+            recipeButtons.put(recipe.getId(), btn);
+            recipePane.getChildren().add(btn);
+        }
+        refreshRecipeButtons();
+    }
 
+    /** Re-evaluates every recipe button against the current stockMap. */
+    private void refreshRecipeButtons() {
+        for (Recipe recipe : loadedRecipes) {
+            Button btn = recipeButtons.get(recipe.getId());
+            if (btn == null) continue;
+            boolean inStock = recipe.isInStock(stockMap);
+            btn.setDisable(!inStock);
             if (inStock) {
                 btn.setStyle(
                     "-fx-font-size: 13px; -fx-background-color: #3498db; " +
                     "-fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;"
                 );
-                btn.setOnAction(ev -> addToOrder(recipe));
+                btn.setTooltip(null);
             } else {
-                btn.setDisable(true);
                 btn.setStyle(
                     "-fx-font-size: 13px; -fx-background-color: #bdc3c7; " +
                     "-fx-text-fill: #7f8c8d; -fx-background-radius: 8;"
                 );
                 btn.setTooltip(new Tooltip("Out of stock"));
             }
-
-            recipePane.getChildren().add(btn);
         }
     }
 
+    /**
+     * Returns a copy of stockMap with the quantities already in the cart subtracted.
+     * Used to prevent adding more items than physically available.
+     */
+    private Map<String, Double> computeVirtualStock() {
+        Map<String, Double> virtual = new HashMap<>(stockMap);
+        for (OrderItem item : currentOrder) {
+            List<RecipeIngredient> ings = item.getRecipe().getIngredients();
+            if (ings == null) continue;
+            for (RecipeIngredient ing : ings) {
+                virtual.merge(ing.getIngredientName(),
+                        -(ing.getQuantityRequired() * item.getQuantity()),
+                        Double::sum);
+            }
+        }
+        return virtual;
+    }
+
     private void addToOrder(Recipe recipe) {
+        // Check virtual stock: real stock minus what is already in the cart
+        Map<String, Double> virtual = computeVirtualStock();
+        List<RecipeIngredient> ings = recipe.getIngredients();
+        boolean canAdd = ings == null || ings.isEmpty() ||
+                ings.stream().allMatch(ing -> {
+                    Double available = virtual.get(ing.getIngredientName());
+                    return available != null && available >= ing.getQuantityRequired();
+                });
+
+        if (!canAdd) {
+            showToast("Not enough stock available for " + recipe.getName() + ".");
+            return;
+        }
+
         for (int i = 0; i < currentOrder.size(); i++) {
             if (currentOrder.get(i).getRecipe().getId() == recipe.getId()) {
                 OrderItem item = currentOrder.get(i);
@@ -303,16 +354,48 @@ public class MainViewController {
             if (newLevel > oldLevel) {
                 showLevelUp(newLevel);
             }
+            syncStockAfterOrder();
         });
 
         task.setOnFailed(e -> {
             completeOrderBtn.setDisable(false);
             orderStatusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #c0392b;");
-            orderStatusLabel.setText("Connection error. Check the server.");
+            Throwable ex = task.getException();
+            orderStatusLabel.setText("Error: " + (ex != null ? ex.getMessage() : "Unknown error"));
         });
 
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();
     }
+
+    /**
+     * Re-fetches live stock after an order completes and refreshes all recipe buttons.
+     * Guards against concurrent orders that may have depleted stock in the background.
+     */
+    private void syncStockAfterOrder() {
+        Task<Map<String, Double>> task = new Task<>() {
+            @Override
+            protected Map<String, Double> call() throws Exception {
+                HttpRequest req = HttpRequest.newBuilder()
+                        .uri(URI.create("http://localhost:8181/api/stock"))
+                        .GET().build();
+                HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+                List<StockItem> items = mapper.readValue(resp.body(), new TypeReference<>() {});
+                return items.stream()
+                        .collect(Collectors.toMap(StockItem::getName, StockItem::getCurrentStock));
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            stockMap = task.getValue();
+            refreshRecipeButtons();
+        });
+
+        // Silent failure — the order already succeeded; buttons will refresh on next interaction
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
 }
