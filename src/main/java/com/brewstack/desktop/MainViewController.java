@@ -3,6 +3,7 @@ package com.brewstack.desktop;
 import com.brewstack.desktop.api.BrewApiClient;
 import com.brewstack.desktop.api.model.Barista;
 import com.brewstack.desktop.api.model.Recipe;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -10,6 +11,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.FlowPane;
+import javafx.util.Duration;
 
 import java.util.List;
 
@@ -128,18 +130,38 @@ public class MainViewController {
             "-fx-font-size: 13px; -fx-font-weight: bold;" +
             "-fx-background-radius: 8; -fx-cursor: hand;"
         ));
-        btn.setOnAction(e -> handleSale(recipe));
+        btn.setOnAction(e -> handleSale(recipe, btn));
         return btn;
     }
 
-    private void handleSale(Recipe recipe) {
+    private void handleSale(Recipe recipe, Button btn) {
+        btn.setDisable(true);
         new Thread(() -> {
             try {
                 apiClient.processSale(recipe.getId());
+                Platform.runLater(() -> flashButton(btn, true));
             } catch (Exception e) {
                 System.err.println("Sale failed for " + recipe.getName() + ": " + e.getMessage());
+                Platform.runLater(() -> flashButton(btn, false));
             }
         }).start();
+    }
+
+    private void flashButton(Button btn, boolean success) {
+        String flashColor = success ? "#27ae60" : "#e74c3c";
+        String baseColor  = "#2980b9";
+        String baseStyle  =
+            "-fx-text-fill: white; -fx-font-size: 13px;" +
+            "-fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;";
+
+        btn.setStyle("-fx-background-color: " + flashColor + "; " + baseStyle);
+
+        PauseTransition pause = new PauseTransition(Duration.millis(600));
+        pause.setOnFinished(e -> {
+            btn.setStyle("-fx-background-color: " + baseColor + "; " + baseStyle);
+            btn.setDisable(false);
+        });
+        pause.play();
     }
 
     private void showMenuError(String message) {
