@@ -12,6 +12,7 @@ public class Recipe {
     private String name;
     private Integer baseXpReward;
     private BigDecimal price;
+    private String imageUrl;
     private List<RecipeIngredientDTO> ingredients;
 
     public Recipe() {}
@@ -27,6 +28,9 @@ public class Recipe {
 
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     public List<RecipeIngredientDTO> getIngredients() { return ingredients; }
     public void setIngredients(List<RecipeIngredientDTO> ingredients) { this.ingredients = ingredients; }
