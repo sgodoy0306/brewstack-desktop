@@ -14,9 +14,11 @@ BrewStack Desktop is the front-of-house screen baristas use to take orders, mana
 - **Order builder** — add items, adjust quantities with the − button, see a live total
 - **Complete Order** — sends the order to the backend, deducts stock, awards XP to the active barista
 - **Barista selector** — choose who is working; each barista has their own XP and level
-- **XP & leveling** — XP bar updates after every order; a level-up animation plays on promotion
+- **XP & leveling** — XP bar and level badge update after every order in the header panel
 - **Stock management** — view all ingredient levels, restock with a custom amount
 - **Daily history** — today's revenue and order count; full historical view
+- **Add Recipe** — create new menu items with name, price, image URL, and ingredient requirements
+- **Add Barista** — register new baristas from the barista selection screen
 
 ---
 
@@ -65,15 +67,22 @@ mvn javafx:run
 ## Screens
 
 ### Barista Selection
-Shown on launch. Lists every barista from the API with their current level and XP. Click a card to start the session as that barista.
+Shown on launch. Lists every barista from the API with their current level and XP. Click a card to start the session as that barista. Use the **+ Add Barista** button to register a new barista.
 
 ### POS — Main Screen
-The main working view. Left/center area shows drink cards with their photo, name, and price. The right panel is the current order.
+The main working view. Left/center area shows drink cards (`RecipeCard`) with their photo, name, and price. Cards load images from the recipe's `imageUrl` and display a greyed-out overlay when stock is insufficient. The right panel is the current order. The header shows the active barista's XP bar and current level.
 
 - Click a card to add it to the order
 - Use **−** to reduce quantity or remove an item
 - Cards are disabled and dimmed when stock is insufficient
 - Press **Complete Order** to submit — stock is deducted and XP is awarded
+- Use **+ Add Recipe** to create a new menu item
+
+### Add Recipe
+Form to create a new recipe: name, price, image URL, and one or more ingredient requirements (ingredient name + quantity). Calls `POST /recipes` on the API.
+
+### Add Barista
+Form to register a new barista by name. Accessible from the Barista Selection screen. Calls `POST /baristas` on the API.
 
 ### Stock Management
 Accessed via the **Stock** button in the header. Shows every ingredient with its current level and minimum threshold. Enter an amount and press **+ Restock** to add stock live.
@@ -92,20 +101,32 @@ src/main/
 │   ├── AppState.java                 — holds the active barista session
 │   ├── MainViewController.java       — POS screen controller
 │   ├── BaristaSelectionController.java
+│   ├── AddBaristaController.java     — new barista form
+│   ├── AddRecipeController.java      — new recipe form (name, price, image, ingredients)
 │   ├── StockViewController.java
 │   ├── DailyHistoryController.java
 │   ├── FullHistoryController.java
+│   ├── RecipeCard.java               — custom card with image + out-of-stock overlay
 │   ├── OrderItemCell.java            — custom list cell with − button
 │   ├── StockCell.java                — custom list cell with restock input
 │   ├── Barista.java                  — model + XP/level helpers
-│   ├── Recipe.java                   — model + isInStock() check
+│   ├── Recipe.java                   — model + isInStock() check + imageUrl
 │   ├── RecipeIngredient.java
 │   ├── OrderItem.java
 │   ├── StockItem.java
-│   └── DailyBalance.java
+│   ├── DailyBalance.java
+│   └── api/
+│       ├── BrewApiClient.java        — all HTTP calls (orders, recipes, baristas, ingredients)
+│       └── model/
+│           ├── CreateRecipeRequest.java
+│           ├── IngredientDTO.java
+│           ├── IngredientRequest.java
+│           └── OrderSummaryDTO.java
 ├── resources/com/brewstack/desktop/
 │   ├── MainView.fxml
 │   ├── BaristaSelection.fxml
+│   ├── AddBaristaView.fxml
+│   ├── AddRecipeView.fxml
 │   ├── StockView.fxml
 │   ├── DailyHistoryView.fxml
 │   ├── FullHistoryView.fxml
@@ -132,7 +153,7 @@ xpNeeded  = (2 × level - 1) × 100
 | Layer      | Technology                     |
 |------------|--------------------------------|
 | Language   | Java 17                        |
-| UI         | JavaFX 17 (JPMS)               |
+| UI         | JavaFX 21.0.2 (JPMS)           |
 | HTTP       | java.net.http (HttpClient)     |
 | JSON       | Jackson 2.17                   |
 | Build      | Maven + JavaFX Maven Plugin    |
