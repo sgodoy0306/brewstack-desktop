@@ -42,15 +42,15 @@ public class StockCell extends ListCell<StockItem> {
 
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1e1830;");
-        stockLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #8f7eb0;");
+        nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #3d2c1e;");
+        stockLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #9a8470;");
 
         amountField.setPromptText("Amount");
         amountField.setPrefWidth(80);
         amountField.setStyle("-fx-font-size: 12px; -fx-background-radius: 8; -fx-border-radius: 8;");
 
         restockBtn.setStyle(
-            "-fx-background-color: #b5e8d5; -fx-text-fill: #1a4035; -fx-font-size: 12px; " +
+            "-fx-background-color: #6aaa82; -fx-text-fill: #0f2e1a; -fx-font-size: 12px; " +
             "-fx-font-weight: bold; -fx-background-radius: 16; -fx-cursor: hand; -fx-padding: 5 14 5 14;"
         );
 
@@ -63,8 +63,8 @@ public class StockCell extends ListCell<StockItem> {
         infoBox.getChildren().addAll(nameLabel, stockLabel);
 
         container.setAlignment(Pos.CENTER_LEFT);
-        container.setStyle("-fx-background-color: #ffffff; -fx-padding: 10 14 10 14; " +
-                "-fx-border-color: #ece6fa; -fx-border-width: 0 0 1 0;");
+        container.setStyle("-fx-background-color: #faf7f2; -fx-padding: 10 14 10 14; " +
+                "-fx-border-color: #e0d5c5; -fx-border-width: 0 0 1 0;");
         container.getChildren().addAll(infoBox, spacer, feedbackLabel, amountField, restockBtn);
     }
 

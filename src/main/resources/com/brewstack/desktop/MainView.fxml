@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
@@ -16,106 +17,123 @@
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.brewstack.desktop.MainViewController"
-            style="-fx-background-color: #f8f5ff;">
+            style="-fx-background-color: #f5f0e8;">
 
-    <!-- Top: App header with barista selector -->
+    <!-- Top: header -->
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="16"
-              style="-fx-background-color: #2c3e50; -fx-padding: 12 16 12 16;">
+        <HBox alignment="CENTER" spacing="0"
+              style="-fx-background-color: #3d2c1e; -fx-padding: 12 20 12 20;">
+
             <Label text="BrewStack POS"
-                   style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
+                   style="-fx-text-fill: #f5f0e8; -fx-font-size: 22px; -fx-font-weight: bold;" />
+
             <Region HBox.hgrow="ALWAYS" />
-            <Label text="Barista:"
-                   style="-fx-text-fill: #95a5a6; -fx-font-size: 13px;" />
-            <ComboBox fx:id="baristaComboBox" promptText="Select barista..."
-                      prefWidth="200"
-                      style="-fx-background-color: #3d5166; -fx-text-fill: white;" />
+
+            <!-- Barista info -->
+            <HBox alignment="CENTER" spacing="14">
+
+                <VBox alignment="CENTER" spacing="0">
+                    <Label text="LVL"
+                           style="-fx-text-fill: #9a8470; -fx-font-size: 8px; -fx-font-weight: bold;" />
+                    <Label fx:id="baristaLevelLabel" text="—"
+                           style="-fx-text-fill: #c8922a; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                </VBox>
+
+                <Separator orientation="VERTICAL" prefHeight="42"
+                           style="-fx-background-color: #5a4030;" />
+
+                <VBox alignment="CENTER_LEFT" spacing="4">
+                    <Label fx:id="baristaNameLabel" text="—"
+                           style="-fx-text-fill: #f5f0e8; -fx-font-size: 14px; -fx-font-weight: bold;" />
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <ProgressBar fx:id="xpProgressBar" progress="0" prefWidth="150"
+                                     style="-fx-accent: #6aaa82;" />
+                        <Label fx:id="xpLabel" text="0 / 0 XP"
+                               style="-fx-text-fill: #9a8470; -fx-font-size: 10px;" />
+                    </HBox>
+                </VBox>
+
+                <Label fx:id="levelUpLabel" text="⬆ LEVEL UP!"
+                       visible="false"
+                       style="-fx-text-fill: #c8922a; -fx-font-size: 12px; -fx-font-weight: bold;" />
+
+            </HBox>
+
+            <Region HBox.hgrow="ALWAYS" />
+
         </HBox>
     </top>
 
-    <!-- Center: Menu buttons (left) + Status bar (right) -->
+    <!-- Center: Recipe menu -->
     <center>
-        <HBox spacing="0">
-
-            <!-- Left: Recipe menu -->
-            <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS"
-                        style="-fx-background-color: #f4f4f4; -fx-border-color: transparent;">
-                <content>
-                    <VBox spacing="16">
-                        <padding>
-                            <Insets top="20" right="20" bottom="20" left="20" />
-                        </padding>
-                        <Label text="Menu"
-                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                        <FlowPane fx:id="menuPane" hgap="12" vgap="12" prefWrapLength="560" />
-                    </VBox>
-                </content>
-            </ScrollPane>
-
-            <Separator orientation="VERTICAL" />
-
-            <!-- Right: Barista status bar -->
-            <VBox prefWidth="220" spacing="12"
-                  style="-fx-background-color: #2c3e50;">
-                <padding>
-                    <Insets top="24" right="20" bottom="24" left="20" />
-                </padding>
-
-                <Label text="BARISTA"
-                       style="-fx-text-fill: #95a5a6; -fx-font-size: 10px; -fx-font-weight: bold;" />
-                <Label fx:id="baristaNameLabel" text="—"
-                       style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
-
-                <Separator style="-fx-background-color: #3d5166;" />
-
-                <Label text="LEVEL"
-                       style="-fx-text-fill: #95a5a6; -fx-font-size: 10px; -fx-font-weight: bold;" />
-                <Label fx:id="baristaLevelLabel" text="—"
-                       style="-fx-text-fill: #f39c12; -fx-font-size: 28px; -fx-font-weight: bold;" />
-
-                <Separator style="-fx-background-color: #3d5166;" />
-
-                <Label text="XP PROGRESS"
-                       style="-fx-text-fill: #95a5a6; -fx-font-size: 10px; -fx-font-weight: bold;" />
-                <ProgressBar fx:id="xpProgressBar" progress="0"
-                             prefWidth="180"
-                             style="-fx-accent: #27ae60;" />
-                <Label fx:id="xpLabel" text="0 / 0 XP"
-                       style="-fx-text-fill: #bdc3c7; -fx-font-size: 11px;" />
-            </VBox>
-
-        </HBox>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: #f5f0e8; -fx-border-color: transparent;">
+            <content>
+                <VBox spacing="16">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20" />
+                    </padding>
+                    <Label text="Menu"
+                           style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #3d2c1e;" />
+                    <FlowPane fx:id="menuPane" hgap="12" vgap="12" prefWrapLength="700" />
+                </VBox>
+            </content>
+        </ScrollPane>
     </center>
 
+    <!-- Bottom: navigation -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_LEFT"
+              style="-fx-background-color: #2a1f14; -fx-padding: 10 20 10 20;">
+            <Button text="+ New Recipe" onAction="#onAddRecipe"
+                    style="-fx-background-color: #6aaa82; -fx-text-fill: #0f2e1a;
+                           -fx-font-size: 12px; -fx-font-weight: bold;
+                           -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 7 18 7 18;" />
+            <Button text="Change Barista" onAction="#onChangeBarista"
+                    style="-fx-background-color: #5a4030; -fx-text-fill: #e8d5ba;
+                           -fx-font-size: 12px; -fx-font-weight: bold;
+                           -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 7 18 7 18;" />
+            <Button text="Stock Management" onAction="#onViewStock"
+                    style="-fx-background-color: #5a4030; -fx-text-fill: #e8d5ba;
+                           -fx-font-size: 12px; -fx-font-weight: bold;
+                           -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 7 18 7 18;" />
+            <Button text="Daily Summary" onAction="#onViewHistory"
+                    style="-fx-background-color: #5a4030; -fx-text-fill: #e8d5ba;
+                           -fx-font-size: 12px; -fx-font-weight: bold;
+                           -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 7 18 7 18;" />
+        </HBox>
+    </bottom>
+
+    <!-- Right: order panel -->
     <right>
         <VBox spacing="12" prefWidth="265"
-              style="-fx-background-color: #ffffff; -fx-border-color: #ece6fa; -fx-border-width: 0 0 0 1;">
+              style="-fx-background-color: #faf7f2; -fx-border-color: #e0d5c5; -fx-border-width: 0 0 0 1;">
             <padding>
                 <Insets top="20" right="18" bottom="18" left="18" />
             </padding>
 
             <Label text="Current Order"
-                   style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e1830;" />
+                   style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #3d2c1e;" />
 
-            <Separator style="-fx-background-color: #ece6fa;" />
+            <Separator style="-fx-background-color: #e0d5c5;" />
 
             <ListView fx:id="orderListView" prefHeight="400"
                       style="-fx-background-color: transparent; -fx-border-color: transparent;" />
 
-            <Separator style="-fx-background-color: #ece6fa;" />
+            <Separator style="-fx-background-color: #e0d5c5;" />
 
             <Label fx:id="totalPriceLabel" text="Total:  $0.00"
-                   style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #5a4a7a;" />
+                   style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #3d2c1e;" />
 
             <Button fx:id="completeOrderBtn" text="Complete Order" onAction="#onCompleteOrder"
                     maxWidth="Infinity"
-                    style="-fx-background-color: #b5e8d5; -fx-text-fill: #1a4035;
+                    style="-fx-background-color: #6aaa82; -fx-text-fill: #0f2e1a;
                            -fx-font-size: 13px; -fx-font-weight: bold;
                            -fx-background-radius: 20; -fx-cursor: hand;
                            -fx-padding: 11 16 11 16;" />
 
             <Label fx:id="orderStatusLabel" text="" wrapText="true"
-                   style="-fx-font-size: 11px; -fx-text-fill: #c0392b;" />
+                   style="-fx-font-size: 11px; -fx-text-fill: #a05030;" />
         </VBox>
     </right>
 

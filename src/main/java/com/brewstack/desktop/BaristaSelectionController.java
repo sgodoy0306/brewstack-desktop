@@ -64,13 +64,13 @@ public class BaristaSelectionController {
 
     private VBox buildCard(Barista barista) {
         String baseStyle =
-            "-fx-background-color: #ffffff; -fx-background-radius: 16; " +
-            "-fx-cursor: hand; -fx-border-color: #ece6fa; -fx-border-radius: 16; -fx-border-width: 2; " +
-            "-fx-effect: dropshadow(gaussian, rgba(100,80,160,0.10), 12, 0, 0, 3);";
+            "-fx-background-color: #faf7f2; -fx-background-radius: 16; " +
+            "-fx-cursor: hand; -fx-border-color: #e0d5c5; -fx-border-radius: 16; -fx-border-width: 2; " +
+            "-fx-effect: dropshadow(gaussian, rgba(60,40,20,0.10), 12, 0, 0, 3);";
         String hoverStyle =
-            "-fx-background-color: #f0eaff; -fx-background-radius: 16; " +
-            "-fx-cursor: hand; -fx-border-color: #d4bef5; -fx-border-radius: 16; -fx-border-width: 2; " +
-            "-fx-effect: dropshadow(gaussian, rgba(100,80,160,0.18), 16, 0, 0, 4);";
+            "-fx-background-color: #f0e8d8; -fx-background-radius: 16; " +
+            "-fx-cursor: hand; -fx-border-color: #c8922a; -fx-border-radius: 16; -fx-border-width: 2; " +
+            "-fx-effect: dropshadow(gaussian, rgba(60,40,20,0.18), 16, 0, 0, 4);";
 
         VBox card = new VBox(8);
         card.setAlignment(Pos.CENTER);
@@ -79,13 +79,13 @@ public class BaristaSelectionController {
         card.setStyle(baseStyle);
 
         Label nameLabel = new Label(barista.getName());
-        nameLabel.setStyle("-fx-text-fill: #1e1830; -fx-font-size: 18px; -fx-font-weight: bold;");
+        nameLabel.setStyle("-fx-text-fill: #3d2c1e; -fx-font-size: 18px; -fx-font-weight: bold;");
 
         Label levelLabel = new Label("Level " + barista.getLevel());
-        levelLabel.setStyle("-fx-text-fill: #7a5cb0; -fx-font-size: 13px; -fx-font-weight: bold;");
+        levelLabel.setStyle("-fx-text-fill: #c8922a; -fx-font-size: 13px; -fx-font-weight: bold;");
 
         Label xpLabel = new Label(barista.getTotalXp() + " XP");
-        xpLabel.setStyle("-fx-text-fill: #9b8fc0; -fx-font-size: 11px;");
+        xpLabel.setStyle("-fx-text-fill: #9a8470; -fx-font-size: 11px;");
 
         card.getChildren().addAll(nameLabel, levelLabel, xpLabel);
         card.setOnMouseClicked(e -> selectBarista(barista));
@@ -102,6 +102,17 @@ public class BaristaSelectionController {
             Scene scene = new Scene(loader.load(), 1100, 720);
             Stage stage = (Stage) baristaPane.getScene().getWindow();
             stage.setScene(scene);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onAddBarista() {
+        try {
+            FXMLLoader loader = new FXMLLoader(App.class.getResource("AddBaristaView.fxml"));
+            Stage stage = (Stage) baristaPane.getScene().getWindow();
+            stage.setScene(new Scene(loader.load(), 1100, 720));
         } catch (Exception e) {
             e.printStackTrace();
         }
